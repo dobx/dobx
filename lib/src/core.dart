@@ -65,8 +65,8 @@ class RW extends StatefulWidget {
   final WB wb;
   final int id;
   int _fieldFlags = 0;
-  RS _rs;
   String _hashKey;
+  RS _rs;
   RW(this.owner, this.wb, this.id, {Key key}) : super(key: key);
 
   @override
@@ -78,6 +78,7 @@ class RW extends StatefulWidget {
 
   RW copy(WB wb) {
     RW rw = new RW(owner, wb, id);
+    rw._fieldFlags = _fieldFlags;
     rw._hashKey = _hashKey;
     rw._rs = _rs;
     return rw;
