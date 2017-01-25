@@ -106,6 +106,7 @@ class StatefulWF {
   final int id;
   final List<RW> widgets = [];
   int _idx = 0;
+  bool _replace = false;
   WB _first;
   StatefulWF() : id = ++_instanceId {
     _instances.add(this);
@@ -114,10 +115,16 @@ class StatefulWF {
   $(WB wb) {
     RW rw;
     if (_first == wb) {
+      // first call after reload
+      _replace = true;
       _idx = 0;
       rw = widgets[_idx].copy(wb);
       widgets[_idx++] = rw;
+    } else if (_replace) {
+      rw = widgets[_idx].copy(wb);
+      widgets[_idx++] = rw;
     } else {
+      // initial
       rw = new RW(this, wb, ++_idx);
       widgets.add(rw);
       _first ??= wb;
