@@ -1,1 +1,1 @@
-export 'src/core.dart' show WB, StatefulWF;
+export 'src/core.dart' show WB, StatefulWF, PubSub;
