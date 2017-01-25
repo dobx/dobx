@@ -28,10 +28,10 @@ abstract class PubSub {
   final Map<String, Entry> entries = {};
 
   void pub(int fid) {
-    int flags = fid == 0 ? 0 : (1 << (fid - 1));
+    final int bit = fid == 0 ? 0 : (1 << (fid - 1));
     for (var entry in entries.values) {
       var rw = StatefulWF._instances[entry.oid - 1].widgets[entry.wid - 1];
-      if (fid == 0 || flags == (flags & rw._fieldFlags)) {
+      if (fid == 0 || bit == (bit & rw._fieldBitset)) {
         rw._rs._update(_noop);
       }
     }
@@ -64,7 +64,7 @@ class RW extends StatefulWidget {
   final StatefulWF owner;
   final WB wb;
   final int id;
-  int _fieldFlags = 0;
+  int _fieldBitset = 0;
   String _hashKey;
   RS _rs;
   RW(this.owner, this.wb, this.id, {Key key}) : super(key: key);
@@ -78,7 +78,7 @@ class RW extends StatefulWidget {
 
   RW copy(WB wb) {
     RW rw = new RW(owner, wb, id);
-    rw._fieldFlags = _fieldFlags;
+    rw._fieldBitset = _fieldBitset;
     rw._hashKey = _hashKey;
     rw._rs = _rs;
     return rw;
@@ -94,7 +94,7 @@ class RW extends StatefulWidget {
     }
 
     if (fid != 0) {
-      _fieldFlags |= (1 << (fid - 1));
+      _fieldBitset |= (1 << (fid - 1));
     }
   }
 }
