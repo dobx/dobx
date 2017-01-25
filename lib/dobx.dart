@@ -1,1 +1,1 @@
-export 'src/core.dart';
+export 'src/core.dart' hide Entry, PubSub, RS, RW, VCB;

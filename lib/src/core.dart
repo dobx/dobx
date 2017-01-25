@@ -1,5 +1,13 @@
+import 'package:flutter/material.dart';
 
-String newHashKey(int oid, int wid) => '$oid:$wid';
+/// Widget builder
+typedef Widget WB(BuildContext context);
+
+typedef void VCB();
+
+void _noop() {}
+
+String _newHashKey(int oid, int wid) => '$oid:$wid';
 
 class Entry {
   final int oid, wid;
@@ -22,31 +30,17 @@ abstract class PubSub {
   void pub(int fid) {
     int flags = fid == 0 ? 0 : (1 << (fid - 1));
     for (var entry in entries.values) {
-      var rw = RWFactory._instances[entry.oid - 1].widgets[entry.wid - 1];
-      if (fid == 0 || flags == (flags & rw.fieldFlags)) {
-        rw.rs.setState(noop);
+      var rw = StatefulWF._instances[entry.oid - 1].widgets[entry.wid - 1];
+      if (fid == 0 || flags == (flags & rw._fieldFlags)) {
+        rw._rs._update(_noop);
       }
     }
   }
-
-  /*int sub(RW w, int i) {
-    var idx = subs.length;
-
-    if (w.key != null)
-      subs.add(w);
-    else
-      idx = -1;
-
-    return idx;
-  }*/
 
   void sub(int fid) {
     current?.addTo(entries, fid);
   }
 }
-
-/// Widget builder
-typedef Widget WB(BuildContext context);
 
 class RS<T extends StatefulWidget> extends State<T> {
   final RW owner;
@@ -60,74 +54,73 @@ class RS<T extends StatefulWidget> extends State<T> {
     PubSub.current = null;
     return w;
   }
+
+  _update(VCB) {
+    setState(VCB);
+  }
 }
 
 class RW extends StatefulWidget {
-  final RWFactory owner;
+  final StatefulWF owner;
   final WB wb;
   final int id;
-  int fieldFlags = 0;
-  RS rs;
-  int fid;
-  String hashKey;
+  int _fieldFlags = 0;
+  RS _rs;
+  String _hashKey;
   RW(this.owner, this.wb, this.id, {Key key}) : super(key: key);
 
   @override
   State createState() {
-    rs = new RS<RW>(this, wb);
+    _rs = new RS<RW>(this, wb);
 
-    return rs;
+    return _rs;
   }
 
   RW copy(WB wb) {
     RW rw = new RW(owner, wb, id);
-    rw.hashKey = hashKey;
-    rw.rs = rs;
+    rw._hashKey = _hashKey;
+    rw._rs = _rs;
     return rw;
   }
 
   void addTo(Map<String,Entry> entries, int fid) {
-    hashKey ??= newHashKey(owner.id, id);
+    _hashKey ??= _newHashKey(owner.id, id);
 
-    Entry entry = entries[hashKey];
+    Entry entry = entries[_hashKey];
     if (entry == null) {
       entry = new Entry(owner.id, id);
-      entries[hashKey] = entry;
+      entries[_hashKey] = entry;
     }
 
     if (fid != 0) {
-      fieldFlags |= (1 << (fid - 1));
+      _fieldFlags |= (1 << (fid - 1));
     }
   }
 }
 
-class RWFactory {
-  static final List<RWFactory> _instances = [];
+class StatefulWF {
+  static final List<StatefulWF> _instances = [];
   static int _instanceId = 0;
 
   final int id;
   final List<RW> widgets = [];
-  int idx = 0;
-  WB first;
-  RWFactory() : id = ++_instanceId {
+  int _idx = 0;
+  WB _first;
+  StatefulWF() : id = ++_instanceId {
     _instances.add(this);
   }
 
   $(WB wb) {
     RW rw;
-    if (first == wb) {
-      print('repaint');
-      idx = 0;
-      rw = widgets[idx].copy(wb);
-      widgets[idx++] = rw;
+    if (_first == wb) {
+      _idx = 0;
+      rw = widgets[_idx].copy(wb);
+      widgets[_idx++] = rw;
     } else {
-      rw = new RW(this, wb, ++idx);
+      rw = new RW(this, wb, ++_idx);
       widgets.add(rw);
-      first ??= wb;
+      _first ??= wb;
     }
-
-    print('idx: $idx');
-
     return rw;
   }
 }
