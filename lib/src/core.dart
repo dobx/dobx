@@ -12,7 +12,7 @@ String _newHashKey(int oid, int wid) => '$oid:$wid';
 class Entry {
   final int oid, wid;
   //final String hashKey;
-  Entry(this.oid, this.wid);//: hashKey = newHashKey(oid, wid);
+  const Entry(this.oid, this.wid);//: hashKey = newHashKey(oid, wid);
 
   /*@override
   get hashCode => hashKey.hashCode;
@@ -24,12 +24,12 @@ class Entry {
 }
 
 abstract class PubSub {
-  static RW current = null;
-  final Map<String, Entry> entries = {};
+  static RW _current = null;
+  final Map<String, Entry> _entries = {};
 
   void pub(int fid) {
     final int bit = fid == 0 ? 0 : (1 << (fid - 1));
-    for (var entry in entries.values) {
+    for (var entry in _entries.values) {
       var rw = StatefulWF._instances[entry.oid - 1].widgets[entry.wid - 1];
       if (fid == 0 || bit == (bit & rw._fieldBitset)) {
         rw._rs._update(_noop);
@@ -38,7 +38,7 @@ abstract class PubSub {
   }
 
   void sub(int fid) {
-    current?.addTo(entries, fid);
+    _current?.addTo(_entries, fid);
   }
 }
 
@@ -49,9 +49,9 @@ class RS<T extends StatefulWidget> extends State<T> {
 
   @override
   Widget build(BuildContext context) {
-    PubSub.current = owner;
+    PubSub._current = owner;
     var w = wb(context);
-    PubSub.current = null;
+    PubSub._current = null;
     return w;
   }
 
