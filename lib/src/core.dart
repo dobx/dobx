@@ -5,7 +5,7 @@ typedef Widget WB(BuildContext context);
 
 typedef void VCB();
 
-void _noop() {}
+void noop() {}
 
 String _newHashKey(int oid, int wid) => '$oid:$wid';
 
@@ -25,20 +25,23 @@ class Entry {
 
 abstract class PubSub {
   static RW _current = null;
-  final Map<String, Entry> _entries = {};
+  //static int _currentId = 0;
+  //final int id = ++_currentId;
+  //final List<Entry> _entries = [];
+  final Map<String,Entry> _entries = {};
 
   void pub(int fid) {
     final int bit = fid == 0 ? 0 : (1 << (fid - 1));
     for (var entry in _entries.values) {
       var rw = StatefulWF._instances[entry.oid - 1].widgets[entry.wid - 1];
       if (fid == 0 || bit == (bit & rw._fieldBitset)) {
-        rw._rs._update(_noop);
+        rw._rs._update(noop);
       }
     }
   }
 
   void sub(int fid) {
-    _current?.addTo(_entries, fid);
+    _current?.addTo(this, fid);
   }
 }
 
@@ -64,6 +67,7 @@ class RW extends StatefulWidget {
   final StatefulWF owner;
   final WB wb;
   final int id;
+  //Set<int> _subs;
   int _fieldBitset = 0;
   String _hashKey;
   RS _rs;
@@ -78,20 +82,34 @@ class RW extends StatefulWidget {
 
   RW copy(WB wb) {
     RW rw = new RW(owner, wb, id);
+    //rw._subs = _subs;
     rw._fieldBitset = _fieldBitset;
     rw._hashKey = _hashKey;
     rw._rs = _rs;
     return rw;
   }
 
-  void addTo(Map<String,Entry> entries, int fid) {
-    _hashKey ??= _newHashKey(owner.id, id);
+  Entry _putEntry() {
+    return new Entry(owner.id, id);
+  }
 
-    Entry entry = entries[_hashKey];
-    if (entry == null) {
-      entry = new Entry(owner.id, id);
-      entries[_hashKey] = entry;
-    }
+  void addTo(PubSub pubsub, int fid) {
+    _hashKey ??= _newHashKey(owner.id, id);
+    pubsub._entries.putIfAbsent(_hashKey, _putEntry);
+
+    /*int rwId = owner._idMap[wb];
+    RW rw;
+    if (_subs == null) {
+      _subs = new Set<int>();
+      _subs.add(pubsub.id);
+      pubsub._entries.add(new Entry(owner.id, id));
+    } else if (_subs.add(pubsub.id)) {
+      pubsub._entries.add(new Entry(owner.id, id));
+    } else if (!identical((rw = owner.widgets[rwId - 1]), this)) {
+      owner.widgets[rwId - 1] = this;
+      _fieldBitset |= rw._fieldBitset;
+      _rs ??= rw._rs;
+    }*/
 
     if (fid != 0) {
       _fieldBitset |= (1 << (fid - 1));
@@ -99,36 +117,48 @@ class RW extends StatefulWidget {
   }
 }
 
-class StatefulWF {
+abstract class WF {
+  Widget $(WB wb);
+
+  // TODO multiple separate roots
+  static WF init(/*WF parent*/) {
+    return StatefulWF._instances.length == 0 ? new StatefulWF() :
+        StatefulWF._instances[0]._reset();
+  }
+}
+
+// TODO multiple separate roots
+class StatefulWF extends WF {
   static final List<StatefulWF> _instances = [];
   static int _instanceId = 0;
 
   final int id;
   final List<RW> widgets = [];
+  final Map<dynamic, int> _idMap = new Map.identity();
+
   int _idx = 0;
-  bool _replace = false;
-  WB _first;
   StatefulWF() : id = ++_instanceId {
     _instances.add(this);
   }
 
-  $(WB wb) {
+  int _putId() => _idx;
+
+  Widget $(WB wb) {
     RW rw;
-    if (_first == wb) {
-      // first call after reload
-      _replace = true;
-      _idx = 0;
-      rw = widgets[_idx].copy(wb);
-      widgets[_idx++] = rw;
-    } else if (_replace) {
-      rw = widgets[_idx].copy(wb);
-      widgets[_idx++] = rw;
-    } else {
-      // initial
-      rw = new RW(this, wb, ++_idx);
+    int i = 0;
+    if (++_idx == (i = _idMap.putIfAbsent(wb, _putId))) {
+      // new one
+      rw = new RW(this, wb, i);
       widgets.add(rw);
-      _first ??= wb;
+    } else {
+      _idx--;
+      rw = widgets[i].copy(wb);
+      widgets[i] = rw;
     }
     return rw;
+  }
+
+  _reset() {
+    _idx = 0;
   }
 }
