@@ -45,7 +45,7 @@ abstract class PubSub {
   }
 }
 
-class RS<T extends StatefulWidget> extends State<T> {
+class RS extends State<RW> {
   final RW owner;
   final WB wb;
   RS(this.owner, this.wb);
@@ -75,7 +75,7 @@ class RW extends StatefulWidget {
 
   @override
   State createState() {
-    _rs = new RS<RW>(this, wb);
+    _rs = new RS(this, wb);
 
     return _rs;
   }
