@@ -7,7 +7,7 @@ typedef void VCB();
 
 void noop() {}
 
-String _newHashKey(int oid, int wid) => '$oid:$wid';
+//String _newHashKey(int oid, int wid) => '$oid:$wid';
 
 class Entry {
   final int oid, wid;
@@ -23,20 +23,22 @@ class Entry {
   bool operator ==(other) => hashKey == other.toString();*/
 }
 
+class EntrySet {
+  final List<Entry> entries = [];
+  int oidBS = 0, widBS = 0;
+}
+
 abstract class PubSub {
   static RW _current = null;
-  //static int _currentId = 0;
-  //final int id = ++_currentId;
-  //final List<Entry> _entries = [];
-  final Map<String,Entry> _entries = {};
+  final Map<int,EntrySet> _mapping = {};
 
   void pub(int fid) {
-    final int bit = fid == 0 ? 0 : (1 << (fid - 1));
-    for (var entry in _entries.values) {
-      var rw = StatefulWF._instances[entry.oid - 1].widgets[entry.wid - 1];
-      if (fid == 0 || bit == (bit & rw._fieldBitset)) {
-        rw._rs._update(noop);
-      }
+    final EntrySet pe = _mapping[fid];
+    if (pe == null) {
+      return;
+    }
+    for (var entry in pe.entries) {
+      StatefulWF._instances[entry.oid - 1].widgets[entry.wid - 1]._rs._update(noop);
     }
   }
 
@@ -63,15 +65,23 @@ class RS extends State<RW> {
   }
 }
 
+EntrySet newEntrySet() {
+  return new EntrySet();
+}
+
 class RW extends StatefulWidget {
   final StatefulWF owner;
   final WB wb;
   final int id;
+  final int oidFlag, widFlag;
   //Set<int> _subs;
   int _fieldBitset = 0;
-  String _hashKey;
+  //String _hashKey;
   RS _rs;
-  RW(this.owner, this.wb, this.id, {Key key}) : super(key: key);
+  RW(this.owner, this.wb, this.id, {Key key}) :
+        oidFlag = (1 << owner.id - 1),
+        widFlag = (1 << id - 1),
+        super(key: key);
 
   @override
   State createState() {
@@ -84,41 +94,26 @@ class RW extends StatefulWidget {
     RW rw = new RW(owner, wb, id);
     //rw._subs = _subs;
     rw._fieldBitset = _fieldBitset;
-    rw._hashKey = _hashKey;
+    //rw._hashKey = _hashKey;
     rw._rs = _rs;
     return rw;
   }
 
-  Entry _putEntry() {
-    return new Entry(owner.id, id);
-  }
-
   void addTo(PubSub pubsub, int fid) {
-    _hashKey ??= _newHashKey(owner.id, id);
-    pubsub._entries.putIfAbsent(_hashKey, _putEntry);
-
-    /*int rwId = owner._idMap[wb];
-    RW rw;
-    if (_subs == null) {
-      _subs = new Set<int>();
-      _subs.add(pubsub.id);
-      pubsub._entries.add(new Entry(owner.id, id));
-    } else if (_subs.add(pubsub.id)) {
-      pubsub._entries.add(new Entry(owner.id, id));
-    } else if (!identical((rw = owner.widgets[rwId - 1]), this)) {
-      owner.widgets[rwId - 1] = this;
-      _fieldBitset |= rw._fieldBitset;
-      _rs ??= rw._rs;
-    }*/
-
-    if (fid != 0) {
-      _fieldBitset |= (1 << (fid - 1));
+    //_hashKey ??= _newHashKey(owner.id, id);
+    EntrySet es = pubsub._mapping.putIfAbsent(fid, newEntrySet);
+    if (oidFlag == (oidFlag & es.oidBS) && widFlag == (widFlag & es.widBS)) {
+      return;
     }
+
+    es.oidBS |= oidFlag;
+    es.widBS |= widFlag;
+    es.entries.add(new Entry(owner.id, id));
   }
 }
 
 abstract class WF {
-  Widget $(WB wb);
+  Widget $(WB wb, Symbol key);
 
   // TODO multiple separate roots
   static WF init(/*WF parent*/) {
@@ -134,7 +129,7 @@ class StatefulWF extends WF {
 
   final int id;
   final List<RW> widgets = [];
-  final Map<dynamic, int> _idMap = new Map.identity();
+  final Map<Symbol, int> _idMap = {};
 
   int _idx = 0;
   StatefulWF() : id = ++_instanceId {
@@ -143,22 +138,24 @@ class StatefulWF extends WF {
 
   int _putId() => _idx;
 
-  Widget $(WB wb) {
+  Widget $(WB wb, Symbol key) {
     RW rw;
     int i = 0;
-    if (++_idx == (i = _idMap.putIfAbsent(wb, _putId))) {
+    if (++_idx == (i = _idMap.putIfAbsent(key, _putId))) {
       // new one
       rw = new RW(this, wb, i);
       widgets.add(rw);
     } else {
       _idx--;
+      i--;
       rw = widgets[i].copy(wb);
       widgets[i] = rw;
     }
     return rw;
   }
 
-  _reset() {
-    _idx = 0;
+  StatefulWF _reset() {
+    // TODO
+    return this;
   }
 }
