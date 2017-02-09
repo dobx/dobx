@@ -38,7 +38,7 @@ abstract class ObservableList<E> implements List<E> {
     return new ObservableList<E>(length);
   }
 
-  ObservableList<E> sub1();
+  List<E> sub1();
 
   /// Create new unmodifiable list from [list].
   ///
@@ -61,7 +61,7 @@ class ObservableDelegatingList<E> extends DelegatingList<E> with PubSub
   ObservableDelegatingList(List<E> store) : super(store);
 
   @override
-  ObservableList<E> sub1() {
+  List<E> sub1() {
     sub(1);
     return this;
   }
