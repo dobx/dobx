@@ -48,13 +48,19 @@ abstract class PubSub {
 class RS extends State<RW> {
   final RW owner;
   final WB wb;
+  bool skipObserve = false;
   RS(this.owner, this.wb);
 
   @override
   Widget build(BuildContext context) {
+    if (skipObserve) return wb(context);
+
     PubSub._current = owner;
     var w = wb(context);
     PubSub._current = null;
+
+    if (!owner.alwaysObserve) skipObserve = true;
+
     return w;
   }
 
@@ -71,12 +77,13 @@ class RW extends StatefulWidget {
   final StatefulWF owner;
   final WB wb;
   final int id;
+  final bool alwaysObserve;
   final int oidFlag, widFlag;
   //Set<int> _subs;
   int _fieldBitset = 0;
   //String _hashKey;
   RS _rs;
-  RW(this.owner, this.wb, this.id, {Key key}) :
+  RW(this.owner, this.wb, this.id, this.alwaysObserve, {Key key}) :
         oidFlag = (1 << owner.id - 1),
         widFlag = (1 << id - 1),
         super(key: key);
@@ -89,11 +96,13 @@ class RW extends StatefulWidget {
   }
 
   RW copy(WB wb) {
-    RW rw = new RW(owner, wb, id);
+    RW rw = new RW(owner, wb, id, alwaysObserve);
     //rw._subs = _subs;
     rw._fieldBitset = _fieldBitset;
     //rw._hashKey = _hashKey;
     rw._rs = _rs;
+    // reset
+    _rs.skipObserve = false;
     return rw;
   }
 
@@ -111,7 +120,7 @@ class RW extends StatefulWidget {
 }
 
 abstract class WF {
-  Widget $(WB wb, Symbol key);
+  Widget $(WB wb, Symbol key, [ bool alwaysObserve = false ]);
 
   // TODO multiple separate roots
   static WF init(/*WF parent*/) {
@@ -136,12 +145,12 @@ class StatefulWF extends WF {
 
   int _putId() => _idx;
 
-  Widget $(WB wb, Symbol key) {
+  Widget $(WB wb, Symbol key, [ bool alwaysObserve = false ]) {
     RW rw;
     int i = 0;
     if (++_idx == (i = _idMap.putIfAbsent(key, _putId))) {
       // new one
-      rw = new RW(this, wb, i);
+      rw = new RW(this, wb, i, alwaysObserve);
       widgets.add(rw);
     } else {
       _idx--;
