@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 /// Widget builder
 typedef Widget WB(BuildContext context);
 
-typedef void VCB();
-
 void noop() {}
 
 //String _newHashKey(int oid, int wid) => '$oid:$wid';
@@ -60,8 +58,8 @@ class RS extends State<RW> {
     return w;
   }
 
-  _update(VCB) {
-    setState(VCB);
+  _update(VoidCallback) {
+    setState(VoidCallback);
   }
 }
 
