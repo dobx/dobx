@@ -66,6 +66,11 @@ class ObservableDelegatingList<E> extends DelegatingList<E> with PubSub
     return this;
   }
 
+  @override
+  List<E> sublist(int start, [int end]) {
+    return start == null ? sub1() : super.sublist(start, end);
+  }
+
   // List
 
   @override
