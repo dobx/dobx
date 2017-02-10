@@ -5,7 +5,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import './core.dart';
+import './core.dart' show PubSub;
 
 /// Notifies subscribers on mutations.
 abstract class ObservableList<E> implements List<E> {

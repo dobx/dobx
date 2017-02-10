@@ -35,7 +35,7 @@ abstract class PubSub {
       return;
     }
     for (var entry in pe.entries) {
-      StatefulWF._instances[entry.oid - 1].widgets[entry.wid - 1]._rs._update(noop);
+      WF._instances[entry.oid - 1].widgets[entry.wid - 1]._rs._update(noop);
     }
   }
 
@@ -118,29 +118,31 @@ class RW extends StatefulWidget {
   }
 }
 
+/// Widget Factory
 abstract class WF {
+  static final List<StatefulWF> _instances = new List<StatefulWF>(64);
+
   Widget $(WidgetBuilder wb, dynamic key, [ bool alwaysObserve = false ]);
 
-  // TODO multiple separate roots
-  static WF init(/*WF parent*/) {
-    return StatefulWF._instances.length == 0 ? new StatefulWF() :
-        StatefulWF._instances[0]._reset();
+  /// Get by index (0-63).
+  static WF get(int idx) {
+    StatefulWF wf = _instances[idx];
+    if (wf == null) {
+      _instances[idx] = wf = new StatefulWF(idx + 1);
+    }
+    return wf;
   }
 }
 
 // TODO multiple separate roots
 class StatefulWF extends WF {
-  static final List<StatefulWF> _instances = [];
-  static int _instanceId = 0;
 
   final int id;
   final List<RW> widgets = [];
   final Map<dynamic, int> _idMap = {};
 
   int _idx = 0;
-  StatefulWF() : id = ++_instanceId {
-    _instances.add(this);
-  }
+  StatefulWF(this.id);
 
   int _putId() => _idx;
 
