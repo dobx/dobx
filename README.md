@@ -1,4 +1,4 @@
-## Dart observables for flutter
+# Dart observables for flutter
 
 A micro framework inspired by  vue's observables (small, simple).
 
