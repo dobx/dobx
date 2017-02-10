@@ -75,8 +75,8 @@ class RS extends State<RW> {
     return w;
   }
 
-  _update(VoidCallback) {
-    setState(VoidCallback);
+  _update(VoidCallback cb) {
+    setState(cb);
   }
 }
 
