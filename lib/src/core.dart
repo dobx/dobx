@@ -14,8 +14,6 @@
 
 import 'package:flutter/material.dart';
 
-/// Widget builder
-
 void noop() {}
 
 //String _newHashKey(int oid, int wid) => '$oid:$wid';
