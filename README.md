@@ -24,7 +24,7 @@ enum Root {
 class AppWidget extends StatelessWidget {
   final App app = new App('');
   // widget factory for the reactive views
-  // this tracks all the observables and the widgets subscribed to them.
+  // this links the observables and the stateful widgets subscribed to them.
   final WF wf = WF.get(0);
   
   @override
