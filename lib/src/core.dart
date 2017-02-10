@@ -47,18 +47,18 @@ abstract class PubSub {
 class RS extends State<RW> {
   final RW owner;
   final WidgetBuilder wb;
-  bool skipObserve = false;
+  bool skipRecord = false;
   RS(this.owner, this.wb);
 
   @override
   Widget build(BuildContext context) {
-    if (skipObserve) return wb(context);
+    if (skipRecord) return wb(context);
 
     PubSub._current = owner;
     var w = wb(context);
     PubSub._current = null;
 
-    if (!owner.alwaysObserve) skipObserve = true;
+    if (!owner.alwaysRecord) skipRecord = true;
 
     return w;
   }
@@ -76,13 +76,13 @@ class RW extends StatefulWidget {
   final StatefulWF owner;
   final WidgetBuilder wb;
   final int id;
-  final bool alwaysObserve;
+  final bool alwaysRecord;
   final int oidFlag, widFlag;
   //Set<int> _subs;
   int _fieldBitset = 0;
   //String _hashKey;
   RS _rs;
-  RW(this.owner, this.wb, this.id, this.alwaysObserve, {Key key}) :
+  RW(this.owner, this.wb, this.id, this.alwaysRecord, {Key key}) :
         oidFlag = (1 << owner.id - 1),
         widFlag = (1 << id - 1),
         super(key: key);
@@ -95,13 +95,13 @@ class RW extends StatefulWidget {
   }
 
   RW copy(WidgetBuilder wb) {
-    RW rw = new RW(owner, wb, id, alwaysObserve);
+    RW rw = new RW(owner, wb, id, alwaysRecord);
     //rw._subs = _subs;
     rw._fieldBitset = _fieldBitset;
     //rw._hashKey = _hashKey;
     rw._rs = _rs;
     // reset
-    _rs.skipObserve = false;
+    _rs.skipRecord = false;
     return rw;
   }
 
