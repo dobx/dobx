@@ -3,8 +3,7 @@ version: 0.1.1
 author: dyu
 description: observables for dart (flutter)
 environment:
-  sdk: '>=1.21.0-dev.1.0 <2.0.0'
+  sdk: '>=1.21.0 <2.0.0'
 dev_dependencies:
-  test: '^0.12.0'
   flutter:
     sdk: flutter
