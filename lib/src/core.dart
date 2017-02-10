@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 /// Widget builder
-typedef Widget WB(BuildContext context);
 
 void noop() {}
 
@@ -47,7 +46,7 @@ abstract class PubSub {
 
 class RS extends State<RW> {
   final RW owner;
-  final WB wb;
+  final WidgetBuilder wb;
   bool skipObserve = false;
   RS(this.owner, this.wb);
 
@@ -75,7 +74,7 @@ EntrySet newEntrySet() {
 
 class RW extends StatefulWidget {
   final StatefulWF owner;
-  final WB wb;
+  final WidgetBuilder wb;
   final int id;
   final bool alwaysObserve;
   final int oidFlag, widFlag;
@@ -95,7 +94,7 @@ class RW extends StatefulWidget {
     return _rs;
   }
 
-  RW copy(WB wb) {
+  RW copy(WidgetBuilder wb) {
     RW rw = new RW(owner, wb, id, alwaysObserve);
     //rw._subs = _subs;
     rw._fieldBitset = _fieldBitset;
@@ -120,7 +119,7 @@ class RW extends StatefulWidget {
 }
 
 abstract class WF {
-  Widget $(WB wb, Symbol key, [ bool alwaysObserve = false ]);
+  Widget $(WidgetBuilder wb, Symbol key, [ bool alwaysObserve = false ]);
 
   // TODO multiple separate roots
   static WF init(/*WF parent*/) {
@@ -145,7 +144,7 @@ class StatefulWF extends WF {
 
   int _putId() => _idx;
 
-  Widget $(WB wb, Symbol key, [ bool alwaysObserve = false ]) {
+  Widget $(WidgetBuilder wb, Symbol key, [ bool alwaysObserve = false ]) {
     RW rw;
     int i = 0;
     if (++_idx == (i = _idMap.putIfAbsent(key, _putId))) {
