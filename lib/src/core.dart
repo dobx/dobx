@@ -119,7 +119,7 @@ class RW extends StatefulWidget {
 }
 
 abstract class WF {
-  Widget $(WidgetBuilder wb, Symbol key, [ bool alwaysObserve = false ]);
+  Widget $(WidgetBuilder wb, dynamic key, [ bool alwaysObserve = false ]);
 
   // TODO multiple separate roots
   static WF init(/*WF parent*/) {
@@ -135,7 +135,7 @@ class StatefulWF extends WF {
 
   final int id;
   final List<RW> widgets = [];
-  final Map<Symbol, int> _idMap = {};
+  final Map<dynamic, int> _idMap = {};
 
   int _idx = 0;
   StatefulWF() : id = ++_instanceId {
@@ -144,7 +144,7 @@ class StatefulWF extends WF {
 
   int _putId() => _idx;
 
-  Widget $(WidgetBuilder wb, Symbol key, [ bool alwaysObserve = false ]) {
+  Widget $(WidgetBuilder wb, dynamic key, [ bool alwaysObserve = false ]) {
     RW rw;
     int i = 0;
     if (++_idx == (i = _idMap.putIfAbsent(key, _putId))) {
