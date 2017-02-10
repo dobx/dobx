@@ -64,7 +64,7 @@ class AppWidget extends StatelessWidget {
   }
 
   Widget $todo_input(BuildContext context) {
-    return ui.fluid_input(app.pnew.title, onTitleChanged);
+    return ui.input(app.pnew.title, onTitleChanged);
   }
   
   Widget $todo_list(BuildContext context) {
