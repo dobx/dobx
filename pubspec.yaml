@@ -1,9 +1,12 @@
 name: dobx
 version: 0.1.1
 author: dyu
-description: observables for dart (flutter)
+description: dart observables for flutter
+homepage: https://github.com/dobx/dobx
+
 environment:
   sdk: '>=1.21.0 <2.0.0'
+
 dev_dependencies:
   flutter:
     sdk: flutter
