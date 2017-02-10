@@ -133,5 +133,5 @@ class AppWidget extends StatelessWidget {
   }
 ```
 
-You can find the example's code in [todo_example](https://github.com/dbox/todo_example)
+You can find the example's code in [todo_example](https://github.com/dobx/todo_example)
 
