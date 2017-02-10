@@ -61,7 +61,9 @@ class App {
 
   App(String initialText) : pnew = Todo.createObservable(initialText);
   
-  // passing null subscribes the caller if tracking is on.
+  // Returns the instance (no slicing happens if null is provided)
+  // dobx uses this existing method signature as a hook to subscribe the caller when tracking is on
+  // Also, maybe 'sublist' could read as subscribe to list? :-)
   List<Todo> get todos => _todos.sublist(null);
 }
 ```
