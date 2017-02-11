@@ -1,8 +1,8 @@
 # Dart observables for flutter
 
-A micro library inspired by vue's observables (small, simple).
+A micro library inspired by [vue](https://github.com/vuejs/vue)'s observables (small, simple).
 
-The name was derived from mendix's mobx for react.
+The name is a play on words from mendix's [mobx](https://github.com/mobxjs/mobx) for react.
 
 ## Example
 lib/main.dart
