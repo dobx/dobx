@@ -21,6 +21,8 @@ enum Root {
   $todo_list,
 }
 
+const String HEADER_TITLE = 'Todo List';
+
 class AppWidget extends StatelessWidget {
   final App app = new App('');
   // widget factory for the reactive views
@@ -30,10 +32,15 @@ class AppWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Todo List',
+      title: HEADER_TITLE,
+      theme: ui.THEME,
       home: new Scaffold(
         appBar: new AppBar(
-          title: new Text('Todo List'),
+          title: new Text(HEADER_TITLE),
+          actions: [
+            ui.icon_defpad_btn(Icons.filter_list, _filterPressed, color: Colors.white),
+            new ui.AppBarPopup(_filterSelected, ['All', 'Pending', 'Completed']),
+          ],
           bottom: new ui.AppBarWidget(newBar),
         ),
         body: new Padding(
@@ -42,6 +49,15 @@ class AppWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+  
+  void _filterSelected(int idx) {
+    app.filter = Todo_Filter.values[idx];
+  }
+
+  void _filterPressed() {
+    if (!app.todos.isEmpty)
+      app.filter = App.rotate(app.filter);
   }
 
   Widget newBar(BuildContext context) {
@@ -53,7 +69,7 @@ class AppWidget extends StatelessWidget {
     );
   }
 
-  void onTitleChanged(InputValue iv) {
+  void _titleChanged(InputValue iv) {
     final String title = iv.text.trim();
     if (title.isEmpty) return;
 
@@ -64,7 +80,7 @@ class AppWidget extends StatelessWidget {
   }
 
   Widget $todo_input(BuildContext context) {
-    return ui.input(app.pnew.title, onTitleChanged);
+    return ui.input(app.pnew.title, _titleChanged);
   }
   
   Widget $todo_list(BuildContext context) {
@@ -78,9 +94,16 @@ todo/lib/app.dart
 import 'package:dobx/dobx.dart';
 import './todo.dart';
 
-class App {
+enum Todo_Filter {
+  ALL,
+  PENDING,
+  COMPLETED,
+}
+
+class App extends PubSub {
   final List<Todo> _todos = new ObservableList<Todo>();
   final Todo pnew;
+  Todo_Filter _filter = Todo_Filter.ALL;
 
   App(String initialText) : pnew = Todo.createObservable(initialText);
   
@@ -88,6 +111,10 @@ class App {
   // dobx uses this existing method signature as a hook to subscribe the caller when tracking is on
   // Also, maybe 'sublist' could read as subscribe to list? :-)
   List<Todo> get todos => _todos.sublist(null);
+  
+  // pojo property observables
+  get filter { sub(1); return _filter; }
+  set filter(String filter) { if (filter != null && filter == _filter) return; _filter = filter ?? Todo_Filter.ALL; pub(1); }
 }
 ```
 
