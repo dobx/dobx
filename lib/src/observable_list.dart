@@ -37,19 +37,13 @@ abstract class ObservableList<E> implements List<E> {
   /// Create a new observable list.
   ///
   /// Optionally define a [list] to use as a backing store.
-  factory ObservableList.delegate([List<E> list]) {
-    return new ObservableDelegatingList(list ?? <E>[]);
+  factory ObservableList.delegate(List<E> list) {
+    return new ObservableDelegatingList(list);
   }
 
   /// Create a new observable list from [elements].
   factory ObservableList.from(Iterable<E> elements) {
     return new ObservableDelegatingList(elements.toList());
-  }
-
-  /// Creates a new observable list of the given [length].
-  @Deprecated('Use the default constructor')
-  factory ObservableList.withLength(int length) {
-    return new ObservableList<E>(length);
   }
 
   List<E> sub1();
