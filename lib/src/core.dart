@@ -37,7 +37,7 @@ class EntrySet {
   int oidBS = 0, widBS = 0;
 }
 
-abstract class PubSub {
+class PubSub {
   static RW _current = null;
   final Map<int,EntrySet> _mapping = {};
 
