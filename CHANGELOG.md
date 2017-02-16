@@ -1,3 +1,7 @@
+## 0.7.0
+
+* PubSub public methods now prefixed with $
+
 ## 0.6.0
 
 * ObservableList.delegate's arg is now required.
