@@ -70,7 +70,7 @@ class ObservableDelegatingList<E> extends DelegatingList<E> with PubSub
 
   @override
   List<E> sub1() {
-    sub(1);
+    $sub(1);
     return this;
   }
 
@@ -84,43 +84,43 @@ class ObservableDelegatingList<E> extends DelegatingList<E> with PubSub
   @override
   operator []=(int index, E newValue) {
     super[index] = newValue;
-    pub(1);
+    $pub(1);
   }
 
   @override
   void add(E value) {
     super.add(value);
-    pub(1);
+    $pub(1);
   }
 
   @override
   void addAll(Iterable<E> values) {
     super.addAll(values);
-    pub(1);
+    $pub(1);
   }
 
   @override
   void clear() {
     super.clear();
-    pub(1);
+    $pub(1);
   }
 
   @override
   void fillRange(int start, int end, [E value]) {
     super.fillRange(start, end, value);
-    pub(1);
+    $pub(1);
   }
 
   @override
   void insert(int index, E element) {
     super.insert(index, element);
-    pub(1);
+    $pub(1);
   }
 
   @override
   void insertAll(int index, Iterable<E> values) {
     super.insertAll(index, values);
-    pub(1);
+    $pub(1);
   }
 
   @override
@@ -130,7 +130,7 @@ class ObservableDelegatingList<E> extends DelegatingList<E> with PubSub
       return;
     }
     super.length = newLength;
-    pub(1);
+    $pub(1);
   }
 
   @override
@@ -138,7 +138,7 @@ class ObservableDelegatingList<E> extends DelegatingList<E> with PubSub
     for (var i = 0; i < this.length; i++) {
       if (this[i] == element) {
         removeAt(i);
-        pub(1);
+        $pub(1);
         return true;
       }
     }
@@ -148,21 +148,21 @@ class ObservableDelegatingList<E> extends DelegatingList<E> with PubSub
   @override
   E removeAt(int index) {
     E el = super.removeAt(index);
-    pub(1);
+    $pub(1);
     return el;
   }
 
   @override
   E removeLast() {
     final E element = super.removeLast();
-    pub(1);
+    $pub(1);
     return element;
   }
 
   @override
   void removeRange(int start, int end) {
     super.removeRange(start, end);
-    pub(1);
+    $pub(1);
   }
 
   @override
@@ -193,7 +193,7 @@ class ObservableDelegatingList<E> extends DelegatingList<E> with PubSub
       removed++;
     }
 
-    if (removed != 0) pub(1);
+    if (removed != 0) $pub(1);
   }
 
   @override
@@ -205,7 +205,7 @@ class ObservableDelegatingList<E> extends DelegatingList<E> with PubSub
     //insertAll(start, newContents);
 
     super.replaceRange(start, end, newContents);
-    pub(1);
+    $pub(1);
   }
 
   @override
@@ -231,7 +231,7 @@ class ObservableDelegatingList<E> extends DelegatingList<E> with PubSub
       notifyListChange(index, removed: removed, addedCount: removed.length);
     }*/
     super.setAll(index, elements);
-    pub(1);
+    $pub(1);
   }
 
   @override
@@ -251,7 +251,7 @@ class ObservableDelegatingList<E> extends DelegatingList<E> with PubSub
       notifyListChange(start, removed: removed, addedCount: removed.length);
     }*/
     super.setRange(start, end, elements, skipCount);
-    pub(1);
+    $pub(1);
   }
 }
 

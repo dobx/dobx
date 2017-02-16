@@ -75,7 +75,7 @@ class AppWidget extends StatelessWidget {
     if (title.isEmpty) return;
 
     // newest first
-    app.todos.insert(0, Todo.create(title, completed: false));
+    app.todos.insert(0, Todo.$create(title, completed: false));
     // pass null to force clear
     app.pnew.title = null;
   }
@@ -106,7 +106,7 @@ class App extends PubSub {
   final Todo pnew;
   Todo_Filter _filter = Todo_Filter.ALL;
 
-  App(String initialText) : pnew = Todo.createObservable(initialText);
+  App(String initialText) : pnew = Todo.$createObservable(initialText);
   
   // Returns the instance (no slicing happens if null is provided)
   // dobx uses this existing method signature as a hook to subscribe the caller when tracking is on
@@ -114,8 +114,8 @@ class App extends PubSub {
   List<Todo> get todos => _todos.sublist(null);
   
   // pojo property observables
-  get filter { sub(1); return _filter; }
-  set filter(String filter) { if (filter != null && filter == _filter) return; _filter = filter ?? Todo_Filter.ALL; pub(1); }
+  get filter { $sub(1); return _filter; }
+  set filter(String filter) { if (filter != null && filter == _filter) return; _filter = filter ?? Todo_Filter.ALL; $pub(1); }
 }
 ```
 
@@ -133,7 +133,7 @@ todo/lib/todo.dart
 import 'package:dobx/dobx.dart' show PubSub, ObservableList;
 
 class Todo {
-  static Todo create(String title, {
+  static Todo $create(String title, {
     bool completed,
   }) {
     assert (title != null);
@@ -142,7 +142,7 @@ class Todo {
       .._completed = completed;
   }
 
-  static Todo createObservable(String title, {
+  static Todo $createObservable(String title, {
     bool completed = false,
   }) {
     assert (title != null);
@@ -163,11 +163,11 @@ class Todo {
 
 class _Todo extends Todo with PubSub {
 
-  get title { sub(1); return _title; }
-  set title(String title) { if (title != null && title == _title) return; _title = title ?? ''; pub(1); }
+  get title { $sub(1); return _title; }
+  set title(String title) { if (title != null && title == _title) return; _title = title ?? ''; $pub(1); }
 
-  get completed { sub(2); return _completed; }
-  set completed(bool completed) { if (completed != null && completed == _completed) return; _completed = completed ?? false; pub(2); }
+  get completed { $sub(2); return _completed; }
+  set completed(bool completed) { if (completed != null && completed == _completed) return; _completed = completed ?? false; $pub(2); }
 }
 
 ```

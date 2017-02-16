@@ -41,7 +41,7 @@ abstract class PubSub {
   static RW _current = null;
   final Map<int,EntrySet> _mapping = {};
 
-  void pub(int fid) {
+  void $pub(int fid) {
     final EntrySet pe = _mapping[fid];
     if (pe == null) {
       return;
@@ -51,7 +51,7 @@ abstract class PubSub {
     }
   }
 
-  void sub(int fid) {
+  void $sub(int fid) {
     _current?.addTo(this, fid);
   }
 }
