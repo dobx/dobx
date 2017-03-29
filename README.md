@@ -130,7 +130,7 @@ message Todo {
 
 todo/lib/todo.dart
 ```dart
-import 'package:dobx/dobx.dart' show PubSub, ObservableList;
+import 'package:dobx/dobx.dart' show PubSub;
 
 class Todo {
   static Todo $create(String title, {
@@ -169,7 +169,26 @@ class _Todo extends Todo with PubSub {
   get completed { $sub(2); return _completed; }
   set completed(bool completed) { if (completed != null && completed == _completed) return; _completed = completed ?? false; $pub(2); }
 }
+```
 
+## with [dobx_gen](https://github.com/dobx/dobx_gen)
+lib/observables.dart
+```dart
+library todo.observables;
+
+import 'package:dobx/dobx.dart';
+import 'package:dobx_gen/core.dart';
+
+part 'observables.g.dart';
+
+@dobx
+abstract class Todo {
+
+  String title;
+  bool completed;
+
+  factory Todo() => _$Todo(); // this method is generated
+}
 ```
 
 Full example code in [todo_example](https://github.com/dobx/todo_example)
